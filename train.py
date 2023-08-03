@@ -14,7 +14,7 @@ vocoder = torch.hub.load('descriptinc/melgan-neurips', 'load_melgan')
 
 def mel_decoder(vocoder, mel, mel_mean, mel_std):
     denorm_converted = mel * mel_std + mel_mean
-    rev = vocoder.inverse(denorm_converted.unsqueeze(0))
+    rev = vocoder.inverse(denorm_converted)
     return rev
 
 
@@ -58,9 +58,9 @@ for real_data in train_dataloader:
     d_fake_source = d(fake_data)
     d_cycle_source = d(cycle_data)
 
-    real_wav = mel_decoder(vocoder, real_data, mean, std)
-    fake_wav = mel_decoder(vocoder, fake_data, mean, std)
-    cycle_wav = mel_decoder(vocoder, cycle_data, mean, std)
+    real_wav = mel_decoder(vocoder, real_data.detach().cpu(), mean, std)
+    fake_wav = mel_decoder(vocoder, fake_data.detach().cpu(), mean, std)
+    cycle_wav = mel_decoder(vocoder, cycle_data.detach().cpu(), mean, std)
 
     emotion_source_real = torch.tensor(emotion_discriminator(real_wav, fs)['logits'][0][0], device=device, dtype=torch.float)
     emotion_source_fake = torch.tensor(emotion_discriminator(fake_wav, fs)['logits'][0][0], device=device, dtype=torch.float)
