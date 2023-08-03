@@ -58,13 +58,17 @@ for real_data in train_dataloader:
     d_fake_source = d(fake_data)
     d_cycle_source = d(cycle_data)
 
-    real_wav = mel_decoder(vocoder, real_data.detach().cpu(), mean, std)
-    fake_wav = mel_decoder(vocoder, fake_data.detach().cpu(), mean, std)
-    cycle_wav = mel_decoder(vocoder, cycle_data.detach().cpu(), mean, std)
+    cpu_real_data = real_data.detach().cpu()
+    cpu_fake_data = fake_data.detach().cpu()
+    cpu_cycle_data = cycle_data.detach().cpu()
 
-    emotion_source_real = torch.tensor(emotion_discriminator(real_wav, fs)['logits'][0][0], device=device, dtype=torch.float)
-    emotion_source_fake = torch.tensor(emotion_discriminator(fake_wav, fs)['logits'][0][0], device=device, dtype=torch.float)
-    emotion_source_cycle = torch.tensor(emotion_discriminator(cycle_wav, fs)['logits'][0][0], device=device, dtype=torch.float)
+    real_wav = mel_decoder(vocoder, cpu_real_data, mean, std)
+    fake_wav = mel_decoder(vocoder, cpu_fake_data, mean, std)
+    cycle_wav = mel_decoder(vocoder, cpu_cycle_data, mean, std)
+
+    emotion_source_real = torch.tensor(emotion_discriminator(cpu_real_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float)
+    emotion_source_fake = torch.tensor(emotion_discriminator(cpu_fake_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float)
+    emotion_source_cycle = torch.tensor(emotion_discriminator(cpu_cycle_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float)
 
     #g loss
     fake_loss = torch.mean(torch.abs(1 - d_fake_source))
