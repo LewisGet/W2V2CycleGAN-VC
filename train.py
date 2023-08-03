@@ -88,8 +88,9 @@ for i in range(steps):
         #emotion g loss
         fake_emotion_loss = torch.abs(emotion_source_fake - (emotion_source_real + emotion_modify_level)) * 10
         cycle_emotion_loss = torch.abs(emotion_source_real - emotion_source_cycle) * 5
+        total_emotion_loss = fake_emotion_loss + cycle_emotion_loss
 
-        g_loss = fake_loss + cycle_loss + fake_emotion_loss + cycle_emotion_loss
+        g_loss = fake_loss + cycle_loss + total_emotion_loss
 
         #d loss
         d_real_loss = torch.mean(torch.abs(1 - d_real_source))
@@ -108,6 +109,7 @@ for i in range(steps):
         d_optimizer.step()
 
     print("step", i)
+    print("emotion_loss", total_emotion_loss.detach().cpu())
     print("g_loss", g_loss.detach().cpu())
     print("d_loss", d_loss.detach().cpu())
 
