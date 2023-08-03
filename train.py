@@ -26,6 +26,7 @@ d_lr = 1e-4
 # we can test 0.2 for two steps modify
 emotion_modify_level = 0.4
 fs = 16000
+steps = 1000
 save_pre_step = 100
 
 dataset_path = os.path.join(".", "dataset")
@@ -57,56 +58,58 @@ def tensor_emotion_source(value):
     )
 
 
-i = 0
-for real_data in train_dataloader:
-    real_data = real_data.to(device, dtype=torch.float)
+for i in range(steps):
+    for real_data in train_dataloader:
+        real_data = real_data.to(device, dtype=torch.float)
 
-    fake_data = g(real_data)
-    cycle_data = g2(fake_data)
+        fake_data = g(real_data)
+        cycle_data = g2(fake_data)
 
-    d_real_source = d(real_data)
-    d_fake_source = d(fake_data)
-    d_cycle_source = d(cycle_data)
+        d_real_source = d(real_data)
+        d_fake_source = d(fake_data)
+        d_cycle_source = d(cycle_data)
 
-    cpu_real_data = real_data.detach().cpu()
-    cpu_fake_data = fake_data.detach().cpu()
-    cpu_cycle_data = cycle_data.detach().cpu()
+        cpu_real_data = real_data.detach().cpu()
+        cpu_fake_data = fake_data.detach().cpu()
+        cpu_cycle_data = cycle_data.detach().cpu()
 
-    real_wav = mel_decoder(vocoder, cpu_real_data, mean, std)
-    fake_wav = mel_decoder(vocoder, cpu_fake_data, mean, std)
-    cycle_wav = mel_decoder(vocoder, cpu_cycle_data, mean, std)
+        real_wav = mel_decoder(vocoder, cpu_real_data, mean, std)
+        fake_wav = mel_decoder(vocoder, cpu_fake_data, mean, std)
+        cycle_wav = mel_decoder(vocoder, cpu_cycle_data, mean, std)
 
-    emotion_source_real = tensor_emotion_source(cpu_real_data)
-    emotion_source_fake = tensor_emotion_source(cpu_fake_data)
-    emotion_source_cycle = tensor_emotion_source(cpu_cycle_data)
+        emotion_source_real = tensor_emotion_source(cpu_real_data)
+        emotion_source_fake = tensor_emotion_source(cpu_fake_data)
+        emotion_source_cycle = tensor_emotion_source(cpu_cycle_data)
 
-    #g loss
-    fake_loss = torch.mean(torch.abs(1 - d_fake_source))
-    cycle_loss = torch.mean(torch.abs(real_data - cycle_data))
+        #g loss
+        fake_loss = torch.mean(torch.abs(1 - d_fake_source))
+        cycle_loss = torch.mean(torch.abs(real_data - cycle_data))
 
-    #emotion g loss
-    fake_emotion_loss = torch.abs(emotion_source_fake - (emotion_source_real + emotion_modify_level)) * 10
-    cycle_emotion_loss = torch.abs(emotion_source_real - emotion_source_cycle) * 5
+        #emotion g loss
+        fake_emotion_loss = torch.abs(emotion_source_fake - (emotion_source_real + emotion_modify_level)) * 10
+        cycle_emotion_loss = torch.abs(emotion_source_real - emotion_source_cycle) * 5
 
-    g_loss = fake_loss + cycle_loss + fake_emotion_loss + cycle_emotion_loss
+        g_loss = fake_loss + cycle_loss + fake_emotion_loss + cycle_emotion_loss
 
-    #d loss
-    d_real_loss = torch.mean(torch.abs(1 - d_real_source))
-    d_fake_loss = torch.mean(torch.abs(0 - d_fake_source))
-    d_cycle_loss = torch.mean(torch.abs(1 - d_cycle_source))
+        #d loss
+        d_real_loss = torch.mean(torch.abs(1 - d_real_source))
+        d_fake_loss = torch.mean(torch.abs(0 - d_fake_source))
+        d_cycle_loss = torch.mean(torch.abs(1 - d_cycle_source))
 
-    d_loss = d_real_loss + d_fake_loss + d_cycle_loss
+        d_loss = d_real_loss + d_fake_loss + d_cycle_loss
 
-    g_optimizer.zero_grad()
-    d_optimizer.zero_grad()
+        g_optimizer.zero_grad()
+        d_optimizer.zero_grad()
 
-    g_loss.backward(retain_graph=True)
-    d_loss.backward()
+        g_loss.backward(retain_graph=True)
+        d_loss.backward()
 
-    g_optimizer.step()
-    d_optimizer.step()
+        g_optimizer.step()
+        d_optimizer.step()
 
-    i += 1
+    print("step", i)
+    print("g_loss", g_loss.detach().cpu())
+    print("d_loss", d_loss.detach().cpu())
 
     if i % save_pre_step == 0:
         torch.save(g.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
