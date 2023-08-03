@@ -9,6 +9,7 @@ from preprocess import load_pickle_file
 from dataset import VCDataset
 from model import Generator, Discriminator
 
+
 vocoder = torch.hub.load('descriptinc/melgan-neurips', 'load_melgan')
 
 
@@ -47,6 +48,13 @@ d_params = list(d.parameters())
 g_optimizer = torch.optim.Adam(g_params, lr=g_lr, betas=(0.5, 0.999))
 d_optimizer = torch.optim.Adam(d_params, lr=d_lr, betas=(0.5, 0.999))
 
+
+def tensor_emotion_source(value):
+    return torch.tensor(
+        emotion_discriminator(cpu_real_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float
+    )
+
+
 i = 0
 for real_data in train_dataloader:
     real_data = real_data.to(device, dtype=torch.float)
@@ -66,9 +74,9 @@ for real_data in train_dataloader:
     fake_wav = mel_decoder(vocoder, cpu_fake_data, mean, std)
     cycle_wav = mel_decoder(vocoder, cpu_cycle_data, mean, std)
 
-    emotion_source_real = torch.tensor(emotion_discriminator(cpu_real_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float)
-    emotion_source_fake = torch.tensor(emotion_discriminator(cpu_fake_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float)
-    emotion_source_cycle = torch.tensor(emotion_discriminator(cpu_cycle_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float)
+    emotion_source_real = tensor_emotion_source(cpu_real_data)
+    emotion_source_fake = tensor_emotion_source(cpu_fake_data)
+    emotion_source_cycle = tensor_emotion_source(cpu_cycle_data)
 
     #g loss
     fake_loss = torch.mean(torch.abs(1 - d_fake_source))
