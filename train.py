@@ -115,5 +115,5 @@ for i in range(steps):
 
     if i % save_pre_step == 0:
         torch.save(g.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
-        torch.save(g2.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
-        torch.save(d.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
+        torch.save(g2.state_dict(), os.path.join(model_path, "g2-" + str(i) + ".ckpt"))
+        torch.save(d.state_dict(), os.path.join(model_path, "d-" + str(i) + ".ckpt"))
