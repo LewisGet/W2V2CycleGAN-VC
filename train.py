@@ -26,9 +26,11 @@ d_lr = 1e-4
 # we can test 0.2 for two steps modify
 emotion_modify_level = 0.4
 fs = 16000
+save_pre_step = 100
 
 dataset_path = os.path.join(".", "dataset")
 preprocessed_path = os.path.join(".", "preprocess")
+model_path = os.path.join(".", "train_model")
 
 dataset = VCDataset(load_pickle_file(os.path.join(preprocessed_path, "normalized.pickle")))
 dataset_norm_status = np.load(os.path.join(preprocessed_path, "norm_status.npz"))
@@ -103,3 +105,10 @@ for real_data in train_dataloader:
 
     g_optimizer.step()
     d_optimizer.step()
+
+    i += 1
+
+    if i % save_pre_step == 0:
+        torch.save(g.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
+        torch.save(g2.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
+        torch.save(d.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
