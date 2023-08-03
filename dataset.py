@@ -8,16 +8,9 @@ import numpy as np
 
 
 class VCDataset(Dataset):
-    def __init__(self, ds, n_frames=64, max_mask_len=25, valid=False):
-        self.dataset = ds
+    def __init__(self, ds, n_frames=64, valid=False):
         self.n_frames = n_frames
         self.valid = valid
-        self.max_mask_len = max_mask_len
-
-    def __getitem__(self, index):
-        ds = self.dataset
-        n_frames = self.n_frames
-
         self.length = len(ds)
 
         train_data_index_subset = np.arange(len(ds))
@@ -34,8 +27,10 @@ class VCDataset(Dataset):
             train_data.append(data[:, start:end])
 
         train_data = np.array(train_data)
+        self.dataset = train_data
 
-        return train_data
+    def __getitem__(self, index):
+        return self.dataset[index]
 
     def __len__(self):
         return len(self.dataset)

@@ -237,6 +237,9 @@ class Generator(nn.Module):
         return self.convLayer
 
     def forward(self, x):
+        # laze fix, todo: calculate real size in model
+        # input size [1, batch * 2, 80, 64]
+        x = torch.stack((x, x), dim=1)
         # Conv2d
         conv1 = self.conv1(x) * torch.sigmoid(self.conv1_gates(x))  # GLU
 
