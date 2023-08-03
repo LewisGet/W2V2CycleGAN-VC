@@ -98,7 +98,7 @@ for real_data in train_dataloader:
     g_optimizer.zero_grad()
     d_optimizer.zero_grad()
 
-    g_loss.backward()
+    g_loss.backward(retain_graph=True)
     d_loss.backward()
 
     g_optimizer.step()
