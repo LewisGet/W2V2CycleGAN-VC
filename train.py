@@ -165,15 +165,8 @@ for i in range(steps):
     print("de_loss", de_loss.detach().cpu())
 
     if i % save_pre_step == 0:
-        torch.save(g.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
-        torch.save(g2.state_dict(), os.path.join(model_path, "g2-" + str(i) + ".ckpt"))
-        torch.save(ga.state_dict(), os.path.join(model_path, "ga-" + str(i) + ".ckpt"))
-        torch.save(d.state_dict(), os.path.join(model_path, "d-" + str(i) + ".ckpt"))
-        torch.save(de.state_dict(), os.path.join(model_path, "de-" + str(i) + ".ckpt"))
-        torch.save(g_optimizer.state_dict(), os.path.join(model_path, "g-optimizer-" + str(i) + ".ckpt"))
-        torch.save(ga_optimizer.state_dict(), os.path.join(model_path, "ga-optimizer-" + str(i) + ".ckpt"))
-        torch.save(d_optimizer.state_dict(), os.path.join(model_path, "d-optimizer-" + str(i) + ".ckpt"))
-        torch.save(d_emotion_optimizer.state_dict(), os.path.join(model_path, "d-emotion-optimizer-" + str(i) + ".ckpt"))
+        for variable_name in ["g", "g2", "ga", "d", "de", "g_optimizer", "ga_optimizer", "d_optimizer", "d_emotion_optimizer"]:
+            torch.save(vars()[variable_name].state_dict(), os.path.join(model_path, "%s-%d.ckpt" % (variable_name, i)))
 
         for wav_name in ["fake_wav", "cycle_wav", "fake_wav_a"]:
             torchaudio.save(os.path.join(result_path, "%s_%d.wav" % (wav_name, i)), vars()[wav_name].detach().cpu(), sample_rate=fs)
