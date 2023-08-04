@@ -83,5 +83,5 @@ for i in range(steps):
     print("d_loss", de_loss.detach().cpu())
 
     if i % save_pre_step == 0:
-        torch.save(de.state_dict(), os.path.join(model_path, "d-" + str(i) + ".ckpt"))
+        torch.save(de.state_dict(), os.path.join(model_path, "de-" + str(i) + ".ckpt"))
         torch.save(d_emotion_optimizer.state_dict(), os.path.join(model_path, "d-emotion-optimizer-" + str(i) + ".ckpt"))
