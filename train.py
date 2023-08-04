@@ -43,13 +43,17 @@ train_dataloader = torch.utils.data.DataLoader(dataset=dataset, batch_size=1, sh
 g = Generator().to(device=device)
 g2 = Generator().to(device=device)
 d = Discriminator().to(device=device)
+de = Discriminator().to(device=device)
+
 emotion_discriminator = audonnx.load(".")
 
 g_params = list(g.parameters()) + list(g2.parameters())
 d_params = list(d.parameters())
+d_emotion_params = list(de.parameters())
 
 g_optimizer = torch.optim.Adam(g_params, lr=g_lr, betas=(0.5, 0.999))
 d_optimizer = torch.optim.Adam(d_params, lr=d_lr, betas=(0.5, 0.999))
+d_emotion_optimizer = torch.optim.Adam(d_emotion_params, lr=d_lr, betas=(0.5, 0.999))
 
 
 def tensor_emotion_source(value):
@@ -69,6 +73,10 @@ for i in range(steps):
         d_fake_source = d(fake_data)
         d_cycle_source = d(cycle_data)
 
+        d_emotion_source_real = de(real_data)
+        d_emotion_source_fake = de(fake_data)
+        d_emotion_source_cycle = de(cycle_data)
+
         cpu_real_data = real_data.detach().cpu()
         cpu_fake_data = fake_data.detach().cpu()
         cpu_cycle_data = cycle_data.detach().cpu()
@@ -86,8 +94,8 @@ for i in range(steps):
         cycle_loss = torch.mean(torch.abs(real_data - cycle_data))
 
         #emotion g loss
-        fake_emotion_loss = torch.abs(emotion_source_fake - (emotion_source_real + emotion_modify_level)) * 10
-        cycle_emotion_loss = torch.abs(emotion_source_real - emotion_source_cycle) * 5
+        fake_emotion_loss = torch.mean(torch.abs(d_emotion_source_fake - (d_emotion_source_real + emotion_modify_level))) * 10
+        cycle_emotion_loss = torch.mean(torch.abs(d_emotion_source_real - d_emotion_source_cycle)) * 5
         total_emotion_loss = fake_emotion_loss + cycle_emotion_loss
 
         g_loss = fake_loss + cycle_loss + total_emotion_loss
@@ -99,13 +107,23 @@ for i in range(steps):
 
         d_loss = d_real_loss + d_fake_loss + d_cycle_loss
 
+        #d emotion loss
+        de_real_loss = torch.mean(torch.abs(emotion_source_real - d_emotion_source_real))
+        de_fake_loss = torch.mean(torch.abs(emotion_source_fake - d_emotion_source_fake))
+        de_cycle_loss = torch.mean(torch.abs(emotion_source_cycle - d_emotion_source_cycle))
+
+        de_loss = de_real_loss + de_fake_loss + de_cycle_loss
+
         g_optimizer.zero_grad()
         d_optimizer.zero_grad()
+        d_emotion_optimizer.zero_grad()
 
         g_loss.backward(retain_graph=True)
+        de_loss.backward(retain_graph=True)
         d_loss.backward()
 
         g_optimizer.step()
+        d_emotion_optimizer.step()
         d_optimizer.step()
 
     print("step", i)
@@ -117,5 +135,7 @@ for i in range(steps):
         torch.save(g.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
         torch.save(g2.state_dict(), os.path.join(model_path, "g2-" + str(i) + ".ckpt"))
         torch.save(d.state_dict(), os.path.join(model_path, "d-" + str(i) + ".ckpt"))
+        torch.save(de.state_dict(), os.path.join(model_path, "d-" + str(i) + ".ckpt"))
         torch.save(g_optimizer.state_dict(), os.path.join(model_path, "g-optimizer-" + str(i) + ".ckpt"))
         torch.save(d_optimizer.state_dict(), os.path.join(model_path, "d-optimizer-" + str(i) + ".ckpt"))
+        torch.save(d_emotion_optimizer.state_dict(), os.path.join(model_path, "d-emotion-optimizer-" + str(i) + ".ckpt"))
