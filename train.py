@@ -1,4 +1,5 @@
 import torch
+import torchaudio
 import pickle
 import numpy as np
 import os
@@ -33,6 +34,7 @@ save_pre_step = 100
 dataset_path = os.path.join(".", "dataset")
 preprocessed_path = os.path.join(".", "preprocess")
 model_path = os.path.join(".", "train_model")
+result_path = os.path.join(".", "train_result")
 
 dataset = VCDataset(load_pickle_file(os.path.join(preprocessed_path, "normalized.pickle")))
 dataset_norm_status = np.load(os.path.join(preprocessed_path, "norm_status.npz"))
@@ -172,3 +174,6 @@ for i in range(steps):
         torch.save(ga_optimizer.state_dict(), os.path.join(model_path, "ga-optimizer-" + str(i) + ".ckpt"))
         torch.save(d_optimizer.state_dict(), os.path.join(model_path, "d-optimizer-" + str(i) + ".ckpt"))
         torch.save(d_emotion_optimizer.state_dict(), os.path.join(model_path, "d-emotion-optimizer-" + str(i) + ".ckpt"))
+
+        for wav_name in ["fake_wav", "cycle_wav", "fake_wav_a"]:
+            torchaudio.save(os.path.join(result_path, "%s_%d.wav" % (wav_name, i)), vars()[wav_name].detach().cpu(), sample_rate=fs)
