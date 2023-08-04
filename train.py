@@ -10,6 +10,8 @@ from preprocess import load_pickle_file
 from dataset import VCDataset
 from model import Generator, Discriminator
 
+from torch.utils.tensorboard import SummaryWriter
+
 
 vocoder = torch.hub.load('descriptinc/melgan-neurips', 'load_melgan')
 
@@ -67,6 +69,8 @@ def tensor_emotion_source(value):
         emotion_discriminator(cpu_real_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float
     )
 
+
+writer = SummaryWriter()
 
 for i in range(steps):
     for real_data in train_dataloader:
@@ -156,6 +160,20 @@ for i in range(steps):
         ga_optimizer.step()
         d_emotion_optimizer.step()
         d_optimizer.step()
+
+    writer.add_scalar("cycle_gan_loss", g_loss, global_step=i)
+    writer.add_scalar("gan_loss", ga_loss, global_step=i)
+    writer.add_scalar("cycle_gan_emotion_loss", total_emotion_loss, global_step=i)
+    writer.add_scalar("discriminator_loss", d_loss, global_step=i)
+    writer.add_scalar("emotion_discriminator_loss", de_loss, global_step=i)
+
+    writer.add_image("gan_fake_mel", fake_data, global_step=i)
+    writer.add_image("gan_cycle_mel", cycle_data, global_step=i)
+    writer.add_image("gan_fake_without_cycle_mel", fake_data_a, global_step=i)
+
+    writer.add_audio("gan_fake_audio", fake_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("gan_cycle_audio", cycle_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("gan_fake_without_cycle_audio", fake_wav_a, global_step=i, sample_rate=fs)
 
     print("step", i)
     print("emotion_loss", total_emotion_loss.detach().cpu())
