@@ -130,7 +130,7 @@ for i in range(steps):
     print("emotion_loss", total_emotion_loss.detach().cpu())
     print("g_loss", g_loss.detach().cpu())
     print("d_loss", d_loss.detach().cpu())
-    print("d_loss", de_loss.detach().cpu())
+    print("de_loss", de_loss.detach().cpu())
 
     if i % save_pre_step == 0:
         torch.save(g.state_dict(), os.path.join(model_path, "g-" + str(i) + ".ckpt"))
