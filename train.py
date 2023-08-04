@@ -34,6 +34,7 @@ steps = 1000
 save_pre_step = 100
 enable_two_gan_compete = False
 loading_model = 0
+emotion_loss_size = 1000
 
 dataset_path = os.path.join(".", "dataset")
 preprocessed_path = os.path.join(".", "preprocess")
@@ -140,13 +141,13 @@ for i in range(steps):
             fake_loss_a = torch.mean(torch.abs(1 - d_fake_source_a))
 
         #emotion g loss
-        fake_emotion_loss = torch.mean(torch.abs(d_emotion_source_fake - (d_emotion_source_real + emotion_modify_level))) * 10
-        cycle_emotion_loss = torch.mean(torch.abs(d_emotion_source_real - d_emotion_source_cycle)) * 5
+        fake_emotion_loss = torch.mean(torch.abs(d_emotion_source_fake - (d_emotion_source_real + emotion_modify_level))) * emotion_loss_size
+        cycle_emotion_loss = torch.mean(torch.abs(d_emotion_source_real - d_emotion_source_cycle)) * emotion_loss_size / 2
         total_emotion_loss = fake_emotion_loss + cycle_emotion_loss
 
         #emotion ga loss
         if enable_two_gan_compete:
-            fake_emotion_loss_a = torch.mean(torch.abs(d_emotion_source_fake_a - (d_emotion_source_real + emotion_modify_level))) * 10
+            fake_emotion_loss_a = torch.mean(torch.abs(d_emotion_source_fake_a - (d_emotion_source_real + emotion_modify_level))) * emotion_loss_size
 
         #cycle gan compare with gan source
         if enable_two_gan_compete:
@@ -177,9 +178,9 @@ for i in range(steps):
             d_loss = d_real_loss + d_fake_loss + d_cycle_loss + d_fake_loss_a
 
         #d emotion loss
-        de_real_loss = torch.mean(torch.abs(emotion_source_real - d_emotion_source_real))
-        de_fake_loss = torch.mean(torch.abs(emotion_source_fake - d_emotion_source_fake))
-        de_cycle_loss = torch.mean(torch.abs(emotion_source_cycle - d_emotion_source_cycle))
+        de_real_loss = torch.mean(torch.abs(emotion_source_real - d_emotion_source_real)) * emotion_loss_size
+        de_fake_loss = torch.mean(torch.abs(emotion_source_fake - d_emotion_source_fake)) * emotion_loss_size
+        de_cycle_loss = torch.mean(torch.abs(emotion_source_cycle - d_emotion_source_cycle)) * emotion_loss_size
 
         if enable_two_gan_compete:
             de_fake_loss_a = torch.mean(torch.abs(emotion_source_fake_a - d_emotion_source_fake_a))
