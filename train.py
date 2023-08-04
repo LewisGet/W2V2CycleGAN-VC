@@ -33,6 +33,7 @@ fs = 16000
 steps = 1000
 save_pre_step = 100
 enable_two_gan_compete = False
+loading_model = 0
 
 dataset_path = os.path.join(".", "dataset")
 preprocessed_path = os.path.join(".", "preprocess")
@@ -71,10 +72,21 @@ def tensor_emotion_source(value):
         emotion_discriminator(cpu_real_data.numpy(), fs)['logits'][0][0], device=device, dtype=torch.float
     )
 
+if loading_model > 0:
+    loading_names = ["g", "g2", "d", "de", "g_optimizer", "d_optimizer", "d_emotion_optimizer"]
+
+    if enable_two_gan_compete:
+        loading_names = ["g", "g2", "ga", "d", "de", "g_optimizer", "ga_optimizer", "d_optimizer", "d_emotion_optimizer"]
+
+    for variable_name in loading_names:
+        vars()[variable_name].load_state_dict(torch.load(os.path.join(model_path, "%s-%d.ckpt" % (variable_name, loading_model))))
 
 writer = SummaryWriter()
 
 for i in range(steps):
+    if i == 0:
+        i = loading_model
+
     for real_data in train_dataloader:
         real_data = real_data.to(device, dtype=torch.float)
 
