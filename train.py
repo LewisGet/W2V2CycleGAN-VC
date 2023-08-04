@@ -95,7 +95,7 @@ for i in range(steps):
         #d loss
         d_real_loss = torch.mean(torch.abs(1 - d_real_source))
         d_fake_loss = torch.mean(torch.abs(0 - d_fake_source))
-        d_cycle_loss = torch.mean(torch.abs(1 - d_cycle_source))
+        d_cycle_loss = torch.mean(torch.abs(0 - d_cycle_source))
 
         d_loss = d_real_loss + d_fake_loss + d_cycle_loss
 
