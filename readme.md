@@ -1,10 +1,18 @@
 # What this?
 
-this using wev2vec2 to optimize gan.
+this using wav2vec2 to optimize gan.
 
-## About wev2vec2
+# Getting start
 
-wev2vec2 pretrain model [link](https://zenodo.org/record/6221127/files/w2v2-L-robust-12.6bc4a7fd-1.1.0.zip)
+1. put some train files in `./train_dataset/*.wav`
+2. preprocess wav files to mel-spectrogram by runing `preprocess.py`
+3. download `wav2vec2` model
+4. modifies training option from `train.py`
+5. run `train.py`
+
+## About wav2vec2
+
+wav2vec2 pretrain model [link](https://zenodo.org/record/6221127/files/w2v2-L-robust-12.6bc4a7fd-1.1.0.zip)
 
 download model and extract demo code.
 
@@ -28,4 +36,4 @@ audeer.extract_archive(
 )
 ```
 
-all code about `wev2vec2` copy from [more detail](https://github.com/audeering/w2v2-how-to)
+all code about `wav2vec2` copy from [more detail](https://github.com/audeering/w2v2-how-to)
