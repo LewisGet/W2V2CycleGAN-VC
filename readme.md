@@ -36,4 +36,16 @@ audeer.extract_archive(
 )
 ```
 
-all code about `wav2vec2` copy from [more detail](https://github.com/audeering/w2v2-how-to)
+all code about `wav2vec2` copy from
+
+1. [audeering/w2v2-how-to](https://github.com/audeering/w2v2-how-to)
+2. [audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim](https://huggingface.co/audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim)
+
+
+## About emotion vectors
+
+1. valence (the pleasantness of a stimulus)
+2. arousal (the intensity of emotion provoked by a stimulus)
+3. dominance (the degree of control exerted by a stimulus)
+
+[source](https://pubmed.ncbi.nlm.nih.gov/23404613/)
