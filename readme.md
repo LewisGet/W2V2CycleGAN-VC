@@ -48,4 +48,5 @@ all code about `wav2vec2` copy from
 2. arousal (the intensity of emotion provoked by a stimulus)
 3. dominance (the degree of control exerted by a stimulus)
 
-[source](https://pubmed.ncbi.nlm.nih.gov/23404613/)
+[Norms of English lemmas](https://pubmed.ncbi.nlm.nih.gov/23404613/)
+[PAD_emotional_state_model](https://en.wikipedia.org/wiki/PAD_emotional_state_model)
