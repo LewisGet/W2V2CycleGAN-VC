@@ -14,7 +14,7 @@ save_pre_step = 100
 loading_model = 0
 emotion_loss_size = 1000
 
-dataset_path = os.path.join(".", "dataset")
+dataset_path = os.path.join(".", "train_dataset")
 preprocessed_path = os.path.join(".", "preprocess")
 model_path = os.path.join(".", "train_model")
 result_path = os.path.join(".", "train_result")
