@@ -1,6 +1,6 @@
 # What this?
 
-this using wav2vec2 to optimize gan.
+this project using `wav2vec2` to supervise generate audio with target emotion vectors.
 
 # Getting start
 
@@ -36,7 +36,7 @@ audeer.extract_archive(
 )
 ```
 
-all code about `wav2vec2` copy from
+all code and pretrain emotion `wav2vec2` model from:
 
 1. [audeering/w2v2-how-to](https://github.com/audeering/w2v2-how-to)
 2. [audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim](https://huggingface.co/audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim)
