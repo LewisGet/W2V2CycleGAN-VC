@@ -12,11 +12,11 @@ from transformers import Wav2Vec2Processor
 from torch.utils.tensorboard import SummaryWriter
 
 
-vocoder = torch.hub.load('descriptinc/melgan-neurips', 'load_melgan')
+vocoder = torch.hub.load('LewisGet/melgan-neurips', 'load_melgan')
 
 emotion_model_name = 'audeering/wav2vec2-large-robust-12-ft-emotion-msp-dim'
 processor = Wav2Vec2Processor.from_pretrained(emotion_model_name)
-emotion_discriminator = EmotionModel.from_pretrained(emotion_model_name)
+emotion_discriminator = EmotionModel.from_pretrained(emotion_model_name).to(device=device)
 
 
 def mel_decoder(vocoder, mel, mel_mean, mel_std):
@@ -35,7 +35,6 @@ train_dataloader = torch.utils.data.DataLoader(dataset=dataset, batch_size=1, sh
 g = Generator().to(device=device)
 g2 = Generator().to(device=device)
 d = Discriminator().to(device=device)
-emotion_discriminator = emotion_discriminator.to(device=device)
 
 g_params = list(g.parameters()) + list(g2.parameters())
 d_params = list(d.parameters())
