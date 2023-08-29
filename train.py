@@ -27,8 +27,9 @@ def mel_decoder(vocoder, mel, mel_mean, mel_std):
 
 dataset = VCDataset(load_pickle_file(os.path.join(preprocessed_path, "normalized.pickle")))
 dataset_norm_status = np.load(os.path.join(preprocessed_path, "norm_status.npz"))
-mean = dataset_norm_status['mean']
-std = dataset_norm_status['std']
+mean = torch.tensor(dataset_norm_status['mean'].tolist()).to(device=device)
+std = torch.tensor(dataset_norm_status['std'].tolist()).to(device=device)
+train_target_emotion = train_target_emotion.to(device=device)
 
 train_dataloader = torch.utils.data.DataLoader(dataset=dataset, batch_size=1, shuffle=True, drop_last=False)
 
