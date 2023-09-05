@@ -61,36 +61,57 @@ for i in range(steps):
         fake_data = g(real_data)
         cycle_data = g2(fake_data)
 
+        fake_data2 = g2(real_data)
+        cycle_data2 = g(real_data)
+
         d_real_source = d(real_data)
         d_fake_source = d(fake_data)
         d_cycle_source = d(cycle_data)
+        d_fake2_source = d(fake_data2)
+        d_cycle2_source = d(cycle_data2)
 
         real_wav = mel_decoder(vocoder, real_data, mean, std)
         fake_wav = mel_decoder(vocoder, fake_data, mean, std)
         cycle_wav = mel_decoder(vocoder, cycle_data, mean, std)
+        fake2_wav = mel_decoder(vocoder, fake_data2, mean, std)
+        cycle2_wav = mel_decoder(vocoder, cycle_data2, mean, std)
 
         _, emotion_source_real = emotion_discriminator(real_wav)
         _, emotion_source_fake = emotion_discriminator(fake_wav)
         _, emotion_source_cycle = emotion_discriminator(cycle_wav)
+        _, emotion_source_fake2 = emotion_discriminator(fake2_wav)
+        _, emotion_source_cycle2 = emotion_discriminator(cycle2_wav)
 
         #g loss
         fake_loss = torch.mean(torch.abs(1 - d_fake_source))
         cycle_loss = torch.mean(torch.abs(real_data - cycle_data))
 
+        #g2 loss
+        fake2_loss = torch.mean(torch.abs(1 - d_fake2_source))
+        cycle2_loss = torch.mean(torch.abs(real_data - cycle_data))
+
         #emotion g loss
         fake_emotion_loss = torch.mean(torch.abs(emotion_source_fake - (emotion_source_real + train_target_emotion))) * emotion_loss_size
         cycle_emotion_loss = torch.mean(torch.abs(emotion_source_real - emotion_source_cycle)) * emotion_loss_size / 2
-        total_emotion_loss = fake_emotion_loss + cycle_emotion_loss
+
+        #emotion g2 loss
+        fake2_emotion_loss = torch.mean(torch.abs(emotion_source_fake2 - (emotion_source_real - train_target_emotion))) * emotion_loss_size
+        cycle2_emotion_loss = torch.mean(torch.abs(emotion_source_real - emotion_source_cycle2)) * emotion_loss_size / 2
+
+        #total emotion loss
+        total_emotion_loss = fake_emotion_loss + cycle_emotion_loss + fake2_emotion_loss + cycle2_emotion_loss
 
         #g loss
-        g_loss = fake_loss + cycle_loss + total_emotion_loss
+        g_loss = fake_loss + fake2_loss + cycle_loss + cycle2_loss + total_emotion_loss
 
         #d loss
         d_real_loss = torch.mean(torch.abs(1 - d_real_source))
         d_fake_loss = torch.mean(torch.abs(0 - d_fake_source))
         d_cycle_loss = torch.mean(torch.abs(0 - d_cycle_source))
+        d_fake2_loss = torch.mean(torch.abs(0 - d_fake2_source))
+        d_cycle2_loss = torch.mean(torch.abs(0 - d_cycle2_source))
 
-        d_loss = d_real_loss + d_fake_loss + d_cycle_loss
+        d_loss = d_real_loss * 5.0 + d_fake_loss + d_cycle_loss + d_fake2_loss + d_cycle2_loss
 
         g_optimizer.zero_grad()
         d_optimizer.zero_grad()
@@ -102,14 +123,22 @@ for i in range(steps):
         d_optimizer.step()
 
     writer.add_scalar("cycle_gan_loss", g_loss, global_step=i)
+    writer.add_scalar("g1_emotion_loss", fake_emotion_loss, global_step=i)
+    writer.add_scalar("g2_emotion_loss", fake2_emotion_loss, global_step=i)
     writer.add_scalar("cycle_gan_emotion_loss", total_emotion_loss, global_step=i)
     writer.add_scalar("discriminator_loss", d_loss, global_step=i)
 
-    writer.add_image("gan_fake_mel", fake_data, global_step=i)
-    writer.add_image("gan_cycle_mel", cycle_data, global_step=i)
+    writer.add_image("g1_fake_mel", fake_data, global_step=i)
+    writer.add_image("g1_cycle_mel", cycle_data, global_step=i)
 
-    writer.add_audio("gan_fake_audio", fake_wav, global_step=i, sample_rate=fs)
-    writer.add_audio("gan_cycle_audio", cycle_wav, global_step=i, sample_rate=fs)
+    writer.add_image("g2_fake_mel", fake_data2, global_step=i)
+    writer.add_image("g2_cycle_mel", cycle_data2, global_step=i)
+
+    writer.add_audio("g1_fake_audio", fake_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("g1_cycle_audio", cycle_wav, global_step=i, sample_rate=fs)
+
+    writer.add_audio("g2_fake_audio", fake2_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("g2_cycle_audio", cycle2_wav, global_step=i, sample_rate=fs)
 
     print("step", i)
 
