@@ -102,7 +102,7 @@ for i in range(steps):
         total_emotion_loss = fake_emotion_loss + cycle_emotion_loss + fake2_emotion_loss + cycle2_emotion_loss
 
         #g loss
-        g_loss = fake_loss + fake2_loss + cycle_loss + cycle2_loss + total_emotion_loss
+        g_loss = fake_loss + cycle_loss + fake2_loss + cycle2_loss + total_emotion_loss
 
         #d loss
         d_real_loss = torch.mean(torch.abs(1 - d_real_source))
@@ -122,23 +122,23 @@ for i in range(steps):
         g_optimizer.step()
         d_optimizer.step()
 
-    writer.add_scalar("cycle_gan_loss", g_loss, global_step=i)
-    writer.add_scalar("g1_emotion_loss", fake_emotion_loss, global_step=i)
-    writer.add_scalar("g2_emotion_loss", fake2_emotion_loss, global_step=i)
-    writer.add_scalar("cycle_gan_emotion_loss", total_emotion_loss, global_step=i)
-    writer.add_scalar("discriminator_loss", d_loss, global_step=i)
+    writer.add_scalar("loss/g/total", g_loss, global_step=i)
+    writer.add_scalar("loss/g/g1/emotion", fake_emotion_loss, global_step=i)
+    writer.add_scalar("loss/g/g2/emotion", fake2_emotion_loss, global_step=i)
+    writer.add_scalar("loss/g/total/emotion", total_emotion_loss, global_step=i)
+    writer.add_scalar("loss/discriminator", d_loss, global_step=i)
 
-    writer.add_image("g1_fake_mel", fake_data, global_step=i)
-    writer.add_image("g1_cycle_mel", cycle_data, global_step=i)
+    writer.add_image("mel/fake/g1", fake_data, global_step=i)
+    writer.add_image("mel/cycle/g1", cycle_data, global_step=i)
 
-    writer.add_image("g2_fake_mel", fake_data2, global_step=i)
-    writer.add_image("g2_cycle_mel", cycle_data2, global_step=i)
+    writer.add_image("mel/fake/g2", fake_data2, global_step=i)
+    writer.add_image("mel/cycle/g2", cycle_data2, global_step=i)
 
-    writer.add_audio("g1_fake_audio", fake_wav, global_step=i, sample_rate=fs)
-    writer.add_audio("g1_cycle_audio", cycle_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("audio/fake/g1", fake_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("audio/cycle/g1", cycle_wav, global_step=i, sample_rate=fs)
 
-    writer.add_audio("g2_fake_audio", fake2_wav, global_step=i, sample_rate=fs)
-    writer.add_audio("g2_cycle_audio", cycle2_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("audio/fake/g2", fake2_wav, global_step=i, sample_rate=fs)
+    writer.add_audio("audio/cycle/g2", cycle2_wav, global_step=i, sample_rate=fs)
 
     print("step", i)
 
