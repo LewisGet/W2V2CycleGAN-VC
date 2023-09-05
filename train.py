@@ -62,7 +62,7 @@ for i in range(steps):
         cycle_data = g2(fake_data)
 
         fake_data2 = g2(real_data)
-        cycle_data2 = g(real_data)
+        cycle_data2 = g(fake_data2)
 
         d_real_source = d(real_data)
         d_fake_source = d(fake_data)
@@ -88,7 +88,7 @@ for i in range(steps):
 
         #g2 loss
         fake2_loss = torch.mean(torch.abs(1 - d_fake2_source))
-        cycle2_loss = torch.mean(torch.abs(real_data - cycle_data))
+        cycle2_loss = torch.mean(torch.abs(real_data - cycle_data2))
 
         #emotion g loss
         fake_emotion_loss = torch.mean(torch.abs(emotion_source_fake - (emotion_source_real + train_target_emotion))) * emotion_loss_size
