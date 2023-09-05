@@ -1,5 +1,7 @@
 torch==2.0.1
 torchaudio==2.0.2
 tensorboard==2.14.0
+transformers==4.32.1
 librosa==0.10.1
+numpy==1.24.4
 pillow==10.0.0
