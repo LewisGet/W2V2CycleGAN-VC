@@ -51,9 +51,7 @@ if loading_model > 0:
 
 writer = SummaryWriter()
 
-for i in range(steps):
-    if i == 0:
-        i = loading_model
+for i in range(loading_model, steps):
 
     for real_data in train_dataloader:
         real_data = real_data.to(device, dtype=torch.float)
